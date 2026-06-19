@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-background: #050B16;
+  --color-background-card: #0B1525;
+  --color-gold: #D4A34F;
+  --color-gold-light: #F4C878;
+  --color-text-main: #FFFFFF;
+  --color-text-muted: #B5B5B5;
+  --color-border-card: #1E293B;
+
+  /* Form/UI variables */
+  --color-primary: #D4A34F;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #0B1525;
+  --color-secondary-foreground: #FFFFFF;
+  --color-foreground: #FFFFFF;
+  --color-card: #0B1525;
+  --color-card-foreground: #FFFFFF;
+  --color-border: rgba(212, 163, 79, 0.15); /* Sleek gold border */
+  --color-border-hover: rgba(244, 200, 120, 0.4);
+
+  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, Consolas, monospace;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body, #root {
+    background-color: #050B16;
+    color: #FFFFFF;
+    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #050B16;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1E293B;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #D4A34F;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #FFFFFF;
+    font-weight: 600;
+  }
+
+  input, select, textarea {
+    background-color: #0B1525;
+    border: 1px solid rgba(212, 163, 79, 0.15);
+    color: #FFFFFF;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: #D4A34F;
+    box-shadow: 0 0 0 2px rgba(212, 163, 79, 0.15);
+  }
+}
+
+/* Glassmorphism utilities */
+.glass-panel {
+  background: rgba(11, 21, 37, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 163, 79, 0.1);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #D4A34F 0%, #F4C878 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #D4A34F 0%, #F4C878 100%);
+}
+
+.gold-glow {
+  box-shadow: 0 0 15px rgba(212, 163, 79, 0.15);
+}
+
+.gold-glow-hover:hover {
+  box-shadow: 0 0 25px rgba(212, 163, 79, 0.3);
+  transition: all 0.3s ease-in-out;
+}
