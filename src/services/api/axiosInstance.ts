@@ -77,8 +77,17 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
+      // Safety timeout to prevent deadlock if token refresh hangs
+      const refreshTimeout = setTimeout(() => {
+        if (isRefreshing) {
+          isRefreshing = false;
+          processQueue(new Error('Token refresh timed out'), null);
+        }
+      }, 10000);
+
       const refreshToken = localStorage.getItem('refreshToken');
       if (!refreshToken) {
+        clearTimeout(refreshTimeout);
         isRefreshing = false;
         localStorage.removeItem('accessToken');
         localStorage.removeItem('adminUser');
@@ -99,11 +108,13 @@ axiosInstance.interceptors.response.use(
         axiosInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         
+        clearTimeout(refreshTimeout);
         processQueue(null, newAccessToken);
         isRefreshing = false;
         
         return axiosInstance(originalRequest);
       } catch (refreshError) {
+        clearTimeout(refreshTimeout);
         processQueue(refreshError, null);
         isRefreshing = false;
         localStorage.removeItem('accessToken');

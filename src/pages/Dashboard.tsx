@@ -28,9 +28,10 @@ import {
 } from 'recharts';
 
 export const Dashboard: React.FC = () => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['dashboardAnalytics'],
     queryFn: () => analyticsApi.getDetailedAnalytics(),
+    refetchInterval: 60000, // Auto-refetch every 60 seconds
   });
 
   const COLORS = ['#D4A34F', '#0B1525', '#F4C878', '#1E293B'];
@@ -46,9 +47,17 @@ export const Dashboard: React.FC = () => {
 
   if (error || !data) {
     return (
-      <div className="p-6 bg-rose-950/20 border border-rose-500/20 rounded-2xl flex flex-col gap-2">
-        <h3 className="font-bold text-rose-500">Error Loading Analytics</h3>
-        <p className="text-sm text-text-muted">Failed to communicate with metrics aggregator. Please verify the API is running.</p>
+      <div className="p-6 bg-rose-950/20 border border-rose-500/20 rounded-2xl flex flex-col gap-3 items-start">
+        <div className="space-y-1">
+          <h3 className="font-bold text-rose-500">Error Loading Analytics</h3>
+          <p className="text-sm text-text-muted">Failed to communicate with metrics aggregator. Please verify the API is running.</p>
+        </div>
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 hover:border-rose-500/50 rounded-xl text-xs font-bold text-rose-400 cursor-pointer transition-colors duration-150"
+        >
+          Retry Connection
+        </button>
       </div>
     );
   }

@@ -39,6 +39,15 @@ export const notificationApi = {
       ? list.map((item) => (item.id === notification.id ? { ...item, ...newNotification } : item))
       : [newNotification, ...list];
 
+    // Trigger immediate FCM broadcast on the backend if no scheduleTime is defined
+    if (!notification.scheduleTime) {
+      await axiosInstance.post('/admin/notifications/broadcast', {
+        title: notification.title,
+        message: notification.message,
+        audience: notification.audience,
+      });
+    }
+
     const response: any = await axiosInstance.put('/admin/settings', {
       key: 'notifications_schedule',
       value: updatedList,
