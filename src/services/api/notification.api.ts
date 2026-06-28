@@ -9,6 +9,9 @@ export interface ScheduledNotification {
   scheduleTime?: string; // Empty if sent immediately
   status: 'sent' | 'scheduled';
   createdAt: string;
+  recipientCount?: number;
+  successCount?: number;
+  failureCount?: number;
 }
 
 export const notificationApi = {
@@ -24,6 +27,22 @@ export const notificationApi = {
 
   saveNotification: async (notification: Partial<ScheduledNotification>): Promise<ScheduledNotification[]> => {
     const list = await notificationApi.getNotifications();
+    let report = { successCount: 0, failureCount: 0, recipientCount: 0 };
+
+    // Trigger immediate FCM broadcast on the backend if no scheduleTime is defined
+    if (!notification.scheduleTime) {
+      const broadcastRes: any = await axiosInstance.post('/admin/notifications/broadcast', {
+        title: notification.title,
+        message: notification.message,
+        audience: notification.audience,
+      });
+      if (broadcastRes && broadcastRes.data) {
+        report = broadcastRes.data;
+      } else if (broadcastRes) {
+        report = broadcastRes;
+      }
+    }
+
     const newNotification: ScheduledNotification = {
       id: notification.id || Math.random().toString(36).substr(2, 9),
       title: notification.title || '',
@@ -33,20 +52,14 @@ export const notificationApi = {
       scheduleTime: notification.scheduleTime,
       status: notification.scheduleTime ? 'scheduled' : 'sent',
       createdAt: new Date().toISOString(),
+      recipientCount: report.recipientCount,
+      successCount: report.successCount,
+      failureCount: report.failureCount,
     };
 
     const updatedList = notification.id
       ? list.map((item) => (item.id === notification.id ? { ...item, ...newNotification } : item))
       : [newNotification, ...list];
-
-    // Trigger immediate FCM broadcast on the backend if no scheduleTime is defined
-    if (!notification.scheduleTime) {
-      await axiosInstance.post('/admin/notifications/broadcast', {
-        title: notification.title,
-        message: notification.message,
-        audience: notification.audience,
-      });
-    }
 
     const response: any = await axiosInstance.put('/admin/settings', {
       key: 'notifications_schedule',

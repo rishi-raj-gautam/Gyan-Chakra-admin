@@ -76,6 +76,16 @@ export const Notifications: React.FC = () => {
     }
   };
 
+  const handleRetry = (notification: ScheduledNotification) => {
+    if (confirm(`Resend the broadcast "${notification.title}" immediately?`)) {
+      sendMutation.mutate({
+        title: notification.title,
+        message: notification.message,
+        audience: notification.audience,
+      });
+    }
+  };
+
   const onSubmit = (values: NotificationFormSchemaType) => {
     const payload: Partial<ScheduledNotification> = {
       title: values.title,
@@ -120,6 +130,27 @@ export const Notifications: React.FC = () => {
       },
     },
     {
+      id: 'recipients',
+      header: 'Recipients',
+      cell: ({ row }) => <span className="font-semibold text-white">{row.original.recipientCount ?? '-'}</span>,
+    },
+    {
+      id: 'deliveryStats',
+      header: 'Delivered / Failed',
+      cell: ({ row }) => {
+        if (row.original.status === 'sent') {
+          return (
+            <span className="text-xxs font-bold">
+              <span className="text-emerald-400">{row.original.successCount ?? 0}</span>
+              {' / '}
+              <span className="text-rose-400">{row.original.failureCount ?? 0}</span>
+            </span>
+          );
+        }
+        return <span>-</span>;
+      },
+    },
+    {
       id: 'scheduleTime',
       header: 'Delivery Time',
       accessorKey: 'scheduleTime',
@@ -132,13 +163,24 @@ export const Notifications: React.FC = () => {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => (
-        <button
-          onClick={() => handleDelete(row.original.id)}
-          className="p-1.5 hover:bg-rose-500/10 border border-white/5 hover:border-rose-500/30 rounded-lg text-text-muted hover:text-rose-400 cursor-pointer"
-          title="Delete/Cancel"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          {row.original.status === 'sent' && (
+            <button
+              onClick={() => handleRetry(row.original)}
+              className="p-1.5 hover:bg-gold/10 border border-white/5 hover:border-gold/30 rounded-lg text-gold cursor-pointer"
+              title="Resend Broadcast"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            onClick={() => handleDelete(row.original.id)}
+            className="p-1.5 hover:bg-rose-500/10 border border-white/5 hover:border-rose-500/30 rounded-lg text-text-muted hover:text-rose-400 cursor-pointer"
+            title="Delete/Cancel"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       ),
     },
   ];
